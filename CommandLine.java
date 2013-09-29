@@ -1,12 +1,10 @@
 class CommandLine {
 
-	private class Parser {
-		Scanner scanner;
-		String[] commandList;
+	static class Parser {
+		private String[] commandList;
 		private final int COMMAND_LIST_SIZE;
 
 		private Parser (String[] commands) {
-			scanner = new Scanner(System.in);
 			COMMAND_LIST_SIZE = commands.length;
 			commandList = new String[COMMAND_LIST_SIZE];
 			for(int i = 0; i < COMMAND_LIST_SIZE; i++) {
@@ -17,15 +15,15 @@ class CommandLine {
 		}
 
 		private void parse (String commandString) {
-			String[] commands = commandString.split("|");
-			System.out.println(commands.toString());
+			String[] commands = commandString.split(" *\\| *");
+			for(int i =0; i<commands.length; i++) System.out.println(commands[i]);
 		}
 
 	}
 
 	public static void main (String[] args) {
 		String[] commands = {"hello", "there", "world"};
-		Parser myParser = new Parser(commands);
+		CommandLine.Parser myParser = new CommandLine.Parser(commands);
 		myParser.parse("hello|there | world > blah.pdf");
 	}
 }
