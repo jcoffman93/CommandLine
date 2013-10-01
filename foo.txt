@@ -1,0 +1,4 @@
+A common first program is
+a program that says hello
+world to the user. This
+is called hello world.
