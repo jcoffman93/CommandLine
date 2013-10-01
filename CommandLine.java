@@ -14,13 +14,32 @@ class CommandLine {
 			for (int i = 0; i < COMMAND_LIST_SIZE; i++) {
 				commandList[i] = commands[i];
 			}
-			myScanner = new Scanner(System.in).useDelimiter(" *\\| *");		
+			myScanner = new Scanner(System.in);		
 		}
 
 		private LinkedBlockingQueue<String[]> parseLine () {
 			LinkedBlockingQueue<String[]> in = new LinkedBlockingQueue<String[]>();
 			LinkedBlockingQueue<String[]> out = new LinkedBlockingQueue<String[]>();
-			while (myScanner.hasNext()) {
+			String[] userCommands = myScanner.nextLine().split(" *\\| *");
+			for (int i = 0; i < userCommands.length; i++) {
+				in = out;
+				out = new LinkedBlockingQueue<String[]>();
+				String[] nameAndArgs = userCommands[i].split(" ");
+				if (nameAndArgs[0].equals("cat")) {
+					String[] catArgs = new String[nameAndArgs.length-1];
+					//System.out.println(catArgs.length);
+					for (int j = 1; j < nameAndArgs.length; j++) {
+						//System.out.println(j);
+						catArgs[j-1] = nameAndArgs[j];
+					}
+					(new Thread(new Cat(out, catArgs))).start();
+				} else if (nameAndArgs[0].equals("lc")) {
+					// do stuff with other commands
+				} else {
+					System.out.printf("Command not recognized: %s", nameAndArgs[0]);
+				}
+			}
+			/*while (myScanner.hasNext()) {
 				in = out;
 				out = new LinkedBlockingQueue<String[]>();
 				String[] nameAndArgs = myScanner.next().split(" ");
@@ -35,7 +54,7 @@ class CommandLine {
 				} else {
 					System.out.printf("Command not recognized: %s", nameAndArgs[0]);
 				}
-			}
+			}*/
 			return out;
 		}
 
@@ -46,9 +65,12 @@ class CommandLine {
 		CommandLine.Parser myParser = new CommandLine.Parser(commands);
 		System.out.print("> ");
 		LinkedBlockingQueue<String[]> output = myParser.parseLine();
-		while(!output.peek()[1].equals("done")) {
+		Boolean outputDone = false;
+		while(!outputDone) {
 			try {
-				System.out.println(output.take());
+				String[] data = output.take();
+				System.out.println(data[0]);
+				outputDone = data[1].equals("done");
 			} catch (InterruptedException e) {
 				System.out.println(e.getMessage());
 				// do nothing for now

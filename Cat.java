@@ -26,7 +26,7 @@ public class Cat extends StartFilter {
 			String[] temp = {myScanner.nextLine(), "going"};
 			return temp;
 		} else {
-			if (currentFile <= myFileNames.length-1) {
+			if (currentFile < myFileNames.length-1) {
 				currentFile++;
 				try {
 					myScanner = new Scanner(new File(myFileNames[currentFile]));
