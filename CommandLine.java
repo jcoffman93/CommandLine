@@ -69,9 +69,20 @@ class CommandLine {
 	public static void main (String[] args) {
 		String[] commands = {"cat", "lc"};
 		CommandLine.Parser myParser = new CommandLine.Parser(commands);
-		System.out.print("> ");
-		LinkedBlockingQueue<String[]> output = myParser.parseLine();
-		Boolean outputDone = false;
+		while(true) {
+			System.out.print("> ");
+			LinkedBlockingQueue<String[]> output = myParser.parseLine();
+			Thread myOutputThread = new Thread(new OutputThread(output));
+			myOutputThread.start();
+			try {
+				myOutputThread.join();
+			} catch (InterruptedException e) {
+				System.out.println(e.getMessage());
+				break; // Actually handle exception later.
+			}
+		}
+		//LinkedBlockingQueue<String[]> output = myParser.parseLine();
+		/*Boolean outputDone = false;
 		while(!outputDone) {
 			System.out.print("> ");
 			try {
@@ -82,7 +93,7 @@ class CommandLine {
 				System.out.println(e.getMessage());
 				// do nothing for now
 			}
-		}
+		}*/
 
 	}
 }
