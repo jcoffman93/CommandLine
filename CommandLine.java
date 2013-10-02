@@ -34,9 +34,15 @@ class CommandLine {
 					}
 					(new Thread(new Cat(out, catArgs))).start();
 				} else if (nameAndArgs[0].equals("lc")) {
+					if (nameAndArgs.length > 1) {
+						System.out.println("Error: lc does not take any arguments.");
+						break; // replace with something more substantial
+					} else {
+						(new Thread(new LineCount(in, out))).start();
+					}
 					// do stuff with other commands
 				} else {
-					System.out.printf("Command not recognized: %s", nameAndArgs[0]);
+					System.out.printf("Command not recognized: %s\n", nameAndArgs[0]);
 				}
 			}
 			/*while (myScanner.hasNext()) {
@@ -61,12 +67,13 @@ class CommandLine {
 	}
 
 	public static void main (String[] args) {
-		String[] commands = {"cat"};
+		String[] commands = {"cat", "lc"};
 		CommandLine.Parser myParser = new CommandLine.Parser(commands);
 		System.out.print("> ");
 		LinkedBlockingQueue<String[]> output = myParser.parseLine();
 		Boolean outputDone = false;
 		while(!outputDone) {
+			System.out.print("> ");
 			try {
 				String[] data = output.take();
 				System.out.println(data[0]);

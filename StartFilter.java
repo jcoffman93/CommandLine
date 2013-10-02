@@ -18,6 +18,7 @@ public abstract class StartFilter implements Runnable {
                 out.put(data.clone()); // forward to output queue
             } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
+                break;
             } 
         }
     }

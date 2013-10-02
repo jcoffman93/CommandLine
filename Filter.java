@@ -15,9 +15,15 @@ public abstract class Filter implements Runnable {
     public void run() {
         String[] data;
         while(! this.done) {
-            data = in.take().clone();  // read from input queue, may block
-            data = transform(data).clone(); // allow filter to change message
-            out.put(data.clone());       // forward to output queue
+            try {
+                data = in.take().clone();  // read from input queue, may block
+                data = transform(data).clone(); // allow filter to change message
+                out.put(data.clone());       // forward to output queue
+            } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
+                break;
+                // Actually handle exception
+            }
         }
     }
     
