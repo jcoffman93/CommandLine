@@ -16,9 +16,9 @@ public abstract class Filter implements Runnable {
         String[] data;
         while(! this.done) {
             try {
-                data = in.take().clone();  // read from input queue, may block
-                data = transform(data).clone(); // allow filter to change message
-                out.put(data.clone());       // forward to output queue
+                data = in.take();  // read from input queue, may block
+                data = transform(data); // allow filter to change message
+                out.put(data);       // forward to output queue
             } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
                 break;

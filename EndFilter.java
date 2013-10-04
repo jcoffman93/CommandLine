@@ -14,7 +14,7 @@ public abstract class EndFilter implements Runnable {
         String[] data;
         while(! this.done) {
             try {
-                data = in.take().clone();  // read from input queue, may block
+                data = in.take();  // read from input queue, may block
                 transform(data);
             } catch (InterruptedException e) {
                 System.out.println(e.getMessage());

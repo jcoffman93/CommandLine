@@ -7,7 +7,7 @@ public class Cat extends StartFilter {
 	private String[] myFileNames;
 	private Scanner myScanner;
 
-	public Cat(LinkedBlockingQueue out, String[] filenames) {
+	public Cat(LinkedBlockingQueue<String[]> out, String[] filenames) throws FileNotFoundException {
 		super(out);
 		myFileNames = new String[filenames.length];
 		for (int i = 0; i < filenames.length; i++) {
@@ -23,7 +23,7 @@ public class Cat extends StartFilter {
 
 	public String[] transform() {
 		if (myScanner.hasNextLine()) {
-			String[] temp = {myScanner.nextLine(), "going"};
+			String[] temp = { myScanner.nextLine(), "" };
 			return temp;
 		} else {
 			if (currentFile < myFileNames.length-1) {
@@ -35,11 +35,11 @@ public class Cat extends StartFilter {
 				}
 			} else {
 				super.done = true;
-				String[] temp = {"", "done"};
+				String[] temp = { "", "END" };
 				return temp;
 			}
 		}
-		String[] temp = {"", "error"};
+		String[] temp = { "", "ERROR" };
 		return temp;
 
 	}

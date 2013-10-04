@@ -5,7 +5,7 @@ public class LineCount extends Filter {
 	private int numLines;
 	private Scanner myScanner;
 
-	public LineCount(LinkedBlockingQueue in,  LinkedBlockingQueue out) {
+	public LineCount(LinkedBlockingQueue<String[]> in, LinkedBlockingQueue<String[]> out) {
 		super(in, out);
 		numLines = 0;
 	}
@@ -16,11 +16,11 @@ public class LineCount extends Filter {
 			myScanner.nextLine();
 			numLines++;
 		}
-		if (data[1].equals("done")) {
-			String[] result = {String.valueOf(numLines), "done"};
+		if (data[1].equals("END")) {
+			String[] result = { String.valueOf(numLines), "END" };
 			return result;
 		} else {
-			String [] result = {"", "going"};
+			String [] result = { "", "" };
 			return result;
 		}
 	}
