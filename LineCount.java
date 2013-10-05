@@ -17,6 +17,7 @@ public class LineCount extends Filter {
 			numLines++;
 		}
 		if (data[1].equals("END")) {
+			super.done = true;
 			String[] result = { String.valueOf(numLines), "END" };
 			return result;
 		} else {

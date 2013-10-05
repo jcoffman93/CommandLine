@@ -9,7 +9,7 @@ public class Grep extends Filter{
 	}
 
 	public String[] transform(String[] data) {
-		super.done = data[1].equals("done");
+		super.done = data[1].equals("END");
 		String matchedString = data[0].contains(searchString) ? data[0] : "";
 		String[] result = { matchedString, data[1] };
 		return result;

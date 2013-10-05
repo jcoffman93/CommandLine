@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 class CommandLine {
 	private static ArrayList<Thread> commandList;
 	private static ArrayList<String[]> commandHistory;
+	private static boolean exit = false;
 	static class Parser {
 		private String[] commandList;
 		private Scanner myScanner;
@@ -32,6 +33,10 @@ class CommandLine {
 		}
 	}
 
+	private static void exit() {
+		exit = true;
+	}
+
 	private void commandUsage(String commandName) {
 		// do something
 	}
@@ -55,8 +60,12 @@ class CommandLine {
 			commandThread = new Thread(new Grep(input, output, nameAndArgs[1]));
 		} else if (nameAndArgs[0].contains("!")) {
 			int commandIndex = Integer.parseInt(nameAndArgs[0].substring(1));
-			LinkedBlockingQueue<String[]> out = startAllThreads(commandHistory.get(commandIndex));
+			LinkedBlockingQueue<String[]> out = startAllThreads(commandHistory.get(commandIndex - 1));
 			commandThread = new Thread(new PrevCommand(out, output));
+		} else if (nameAndArgs[0].equals("history")) {
+			commandThread = new Thread(new History(output, commandHistory));
+		} else if (nameAndArgs[0].equals("exit")) {
+			exit();
 		} else {
 			System.out.printf("Command not recognized: %s\n", nameAndArgs[0]);
 		}
@@ -81,15 +90,15 @@ class CommandLine {
 	}
 
 	public static void main (String[] args) {
-		String[] commands = {"cat", "lc"};
+		String[] commands = {""};
 		commandList = new ArrayList<Thread>();
 		commandHistory = new ArrayList<String[]>();
+		String[] userCommands;
 		CommandLine.Parser myParser = new CommandLine.Parser(commands);
-		while(true) {
+		while(!exit) {
 			System.out.print("> ");
-			commandHistory.add(myParser.parseLine());
-			LinkedBlockingQueue<String[]> output = startAllThreads(
-				commandHistory.get(commandHistory.size()-1));
+			userCommands = myParser.parseLine();
+			LinkedBlockingQueue<String[]> output = startAllThreads(userCommands);
 			if (output != null) {
 				Thread myOutputHandler = new Thread(new OutputHandler(output));
 				myOutputHandler.start();
@@ -100,6 +109,7 @@ class CommandLine {
 					break; // Actually handle exception later.
 				}
 			}
+			commandHistory.add(userCommands);
 		}
 	}
 }

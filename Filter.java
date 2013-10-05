@@ -21,8 +21,7 @@ public abstract class Filter implements Runnable {
                 out.put(data);       // forward to output queue
             } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
-                break;
-                // Actually handle exception
+                return;
             }
         }
     }
