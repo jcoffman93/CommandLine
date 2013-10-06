@@ -18,7 +18,7 @@ public abstract class EndFilter implements Runnable {
                 transform(data);
             } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
-                break;
+                return;
                 // Actually handle exception
             }
         }

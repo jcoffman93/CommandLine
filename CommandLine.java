@@ -6,7 +6,12 @@ import java.io.FileNotFoundException;
 class CommandLine {
 	private static ArrayList<Thread> commandList;
 	private static ArrayList<String[]> commandHistory;
-	private static boolean exit = false;
+	private static String currentDirectory;
+	private static boolean exitRepl = false;
+
+	private String[] parseLine () {
+		return myScanner.nextLine().split(" *\\| *");
+	}
 	static class Parser {
 		private String[] commandList;
 		private Scanner myScanner;
@@ -34,11 +39,28 @@ class CommandLine {
 	}
 
 	private static void exit() {
-		exit = true;
+		exitRepl = true;
 	}
 
 	private void commandUsage(String commandName) {
 		// do something
+		/*if (commandName.equals("cat")) {
+			System.out.println("Command - cat\n
+				Usage - cat takes at least one filename and outputs its contents, line by line.\n
+				Example - cat filename1 [filename2, filename3...]");
+		} else if (commandName.equals("lc")) {
+			System.out.println("Command - lc\n
+				Usage - lc takes no arguments. It counts the numberof lines it receives as input.\n
+				Example - lc");
+		} else if (commandName.equals("grep")) {
+			System.out.println("Command - grep\n
+				Usage - grep takes a string and returns each line containing that string.\n 
+				Example - grep hello world");
+		} else if (commandName.equals("!n")) {
+			System.out.println("Command - !n\n
+				Usage - !n takes no arguments. It executes the nth command executed during a session.\n
+				Example - !2");
+		}*/
 	}
 
 	private static void handleException(Exception e, String commandName, String[] commandArgs) {
@@ -64,6 +86,8 @@ class CommandLine {
 			commandThread = new Thread(new PrevCommand(out, output));
 		} else if (nameAndArgs[0].equals("history")) {
 			commandThread = new Thread(new History(output, commandHistory));
+		} else if (nameAndArgs[0].equals("pwd")) {
+			commandThread = new Thread(new Pwd(output, currentDirectory));
 		} else if (nameAndArgs[0].equals("exit")) {
 			exit();
 		} else {
@@ -91,11 +115,12 @@ class CommandLine {
 
 	public static void main (String[] args) {
 		String[] commands = {""};
-		commandList = new ArrayList<Thread>();
 		commandHistory = new ArrayList<String[]>();
+		commandList = new ArrayList<Thread>();
+		currentDirectory = System.getProperty("user.dir");
 		String[] userCommands;
 		CommandLine.Parser myParser = new CommandLine.Parser(commands);
-		while(!exit) {
+		while(!exitRepl) {
 			System.out.print("> ");
 			userCommands = myParser.parseLine();
 			LinkedBlockingQueue<String[]> output = startAllThreads(userCommands);
@@ -110,6 +135,7 @@ class CommandLine {
 				}
 			}
 			commandHistory.add(userCommands);
+			commandList.clear();
 		}
 	}
 }

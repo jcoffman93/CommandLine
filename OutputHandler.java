@@ -21,6 +21,8 @@ public class OutputHandler extends EndFilter {
 		if (!data[0].equals("")) {
 			myOutputStream.println(data[0]);
 		}
-		super.done = data[1].equals("END");
+		if (data[1].equals("END")) {
+			super.done = true;
+		}
 	}
 }

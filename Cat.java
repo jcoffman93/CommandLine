@@ -17,7 +17,8 @@ public class Cat extends StartFilter {
 		try {
 			myScanner = new Scanner(new File(myFileNames[currentFile]));
 		} catch (FileNotFoundException e) {
-			System.out.println(e.getMessage());
+			System.out.printf("Could not open file: %s", myFileNames[currentFile]);
+			throw new RuntimeException();
 		}
 	}
 
@@ -32,6 +33,7 @@ public class Cat extends StartFilter {
 					myScanner = new Scanner(new File(myFileNames[currentFile]));
 				} catch (FileNotFoundException e) {
 					System.out.printf("Could not open file: %s", myFileNames[currentFile]);
+					throw new RuntimeException();
 				}
 			} else {
 				super.done = true;

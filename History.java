@@ -28,7 +28,7 @@ public class History extends StartFilter {
 	}
 
 	private String makeCommandString () {
-		if (commandHistory.size() ==0) return "";
+		if (commandHistory.size() == 0) return "";
 		String commandString = Integer.toString(currentCommand + 1);
 		for (String command : commandHistory.get(currentCommand)) {
 			commandString += String.format(" %s", command);
