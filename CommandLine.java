@@ -21,7 +21,7 @@ class CommandLine {
 		exitRepl = true;
 	}
 
-	private static void commandUsage(String commandName) {
+	public static void commandUsage(String commandName) {
 		// do something
 		/*if (commandName.equals("cat")) {
 			System.out.println("Command - cat\n
@@ -46,9 +46,9 @@ class CommandLine {
 		// do something
 	}
 
-	private String changeDirectory (String path) {
+	/*private String changeDirectory (String path) {
 		// do something
-	}
+	}*/
 
 	private String[] parseLine () {
 		return myScanner.nextLine().split(" *\\| *");
@@ -75,6 +75,8 @@ class CommandLine {
 			commandThread = new Thread(new History(output, commandHistory));
 		} else if (nameAndArgs[0].equals("pwd")) {
 			commandThread = new Thread(new Pwd(output, currentDirectory));
+		} else if (nameAndArgs[0].equals("ls")) {
+			commandThread = new Thread(new Ls(output, currentDirectory));
 		} else if (nameAndArgs[0].equals("exit")) {
 			exit();
 		} else {
