@@ -1,19 +1,22 @@
 import java.util.Scanner;
-import java.util.concurrent.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.ArrayList;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.File;
 
 class CommandLine {
 	private ArrayList<Thread> commandList;
-	private ArrayList<String[]> commandHistory;
-	private String currentDirectory;
+	private ArrayList<String> commandHistory;
+	private Path currentDirectory;
 	private boolean exitRepl = false;
 	private Scanner myScanner;
 
 	private CommandLine() {
-		commandHistory = new ArrayList<String[]>();
+		commandHistory = new ArrayList<String>();
 		commandList = new ArrayList<Thread>();
-		currentDirectory = System.getProperty("user.dir");
+		currentDirectory = Paths.get(System.getProperty("user.dir"));
 		myScanner = new Scanner(System.in);
 	}
 
@@ -46,12 +49,21 @@ class CommandLine {
 		// do something
 	}
 
-	/*private String changeDirectory (String path) {
-		// do something
-	}*/
+	private void changeDirectory (String path) {
+		String temp;
+		if (path.equals("..")) {
+			currentDirectory = currentDirectory.getParent();
+		} else {
+			if (new File(path).isDirectory()) {
+				currentDirectory = currentDirectory.resolve(path);
+			} else {
+				System.out.printf("%s is not a directory.\n", path);
+			}
+		}
+	}
 
-	private String[] parseLine () {
-		return myScanner.nextLine().split(" *\\| *");
+	private String parseLine () {
+		return myScanner.nextLine();
 	}
 
 	private Thread startThread(String[] nameAndArgs, LinkedBlockingQueue<String[]> input, 
@@ -59,7 +71,7 @@ class CommandLine {
 		Thread commandThread = null;
 		if (nameAndArgs[0].equals("cat")) {
 			try {
-				commandThread = new Thread(new Cat(output, nameAndArgs[1].split(" ")));
+				commandThread = new Thread(new Cat(output, currentDirectory, nameAndArgs[1].split(" ")));
 			} catch (FileNotFoundException e) {
 				handleException(e, "cat", nameAndArgs[1].split(" "));
 			}
@@ -69,16 +81,18 @@ class CommandLine {
 			commandThread = new Thread(new Grep(input, output, nameAndArgs[1]));
 		} else if (nameAndArgs[0].contains("!")) {
 			int commandIndex = Integer.parseInt(nameAndArgs[0].substring(1));
-			LinkedBlockingQueue<String[]> out = startAllThreads(commandHistory.get(commandIndex - 1));
+			LinkedBlockingQueue<String[]> out = startAllThreads(commandHistory.get(commandIndex - 1).split(" *\\| *"));
 			commandThread = new Thread(new PrevCommand(out, output));
 		} else if (nameAndArgs[0].equals("history")) {
 			commandThread = new Thread(new History(output, commandHistory));
 		} else if (nameAndArgs[0].equals("pwd")) {
-			commandThread = new Thread(new Pwd(output, currentDirectory));
+			commandThread = new Thread(new Pwd(output, currentDirectory.toString()));
 		} else if (nameAndArgs[0].equals("ls")) {
-			commandThread = new Thread(new Ls(output, currentDirectory));
+			commandThread = new Thread(new Ls(output, currentDirectory.toString()));
 		} else if (nameAndArgs[0].equals("exit")) {
 			exit();
+		} else if (nameAndArgs[0].equals("cd")) {
+			changeDirectory(nameAndArgs[1]);
 		} else {
 			System.out.printf("Command not recognized: %s\n", nameAndArgs[0]);
 		}
@@ -101,14 +115,23 @@ class CommandLine {
 		}
 		return out;
 	}
+	// Returns output filename and removes output information from last command.
+	// Example: 
+	// userCommands = ['cat foo.txt', 'lc > bar.txt']
+	// 
+	private String getFile (String[] userCommands) {
+		String[] commandAndFile = userCommands[userCommands.length-1].split(" *> *");
+		userCommands[userCommands.length-1] = commandAndFile[0];
+		return commandAndFile[1];
+	}
 
 	public static void main (String[] args) {
-		String[] userCommands;
+		String userCommands;
 		CommandLine myCmd = new CommandLine();
 		while(!myCmd.exitRepl) {
 			System.out.print("> ");
 			userCommands = myCmd.parseLine();
-			LinkedBlockingQueue<String[]> output = myCmd.startAllThreads(userCommands);
+			LinkedBlockingQueue<String[]> output = myCmd.startAllThreads(userCommands.split(" *\\| *"));
 			if (output != null) {
 				Thread myOutputHandler = new Thread(new OutputHandler(output));
 				myOutputHandler.start();

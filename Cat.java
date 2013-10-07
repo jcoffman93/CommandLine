@@ -1,21 +1,21 @@
 import java.util.concurrent.*;
 import java.io.*;
 import java.util.Scanner;
-
+import java.nio.file.Path;
 public class Cat extends StartFilter {
 	private int currentFile;
 	private String[] myFileNames;
 	private Scanner myScanner;
+	private Path workingDirectory;
 
-	public Cat(LinkedBlockingQueue<String[]> out, String[] filenames) throws FileNotFoundException {
+	public Cat(LinkedBlockingQueue<String[]> out, Path workingDirectory, String[] filenames) 
+		throws FileNotFoundException {
 		super(out);
-		myFileNames = new String[filenames.length];
-		for (int i = 0; i < filenames.length; i++) {
-			myFileNames[i] = filenames[i];
-		}
+		myFileNames = filenames;
 		currentFile = 0;
+		this.workingDirectory = workingDirectory;
 		try {
-			myScanner = new Scanner(new File(myFileNames[currentFile]));
+			myScanner = new Scanner(new File((workingDirectory.resolve(myFileNames[currentFile])).toString()));
 		} catch (FileNotFoundException e) {
 			System.out.printf("Could not open file: %s", myFileNames[currentFile]);
 			throw new RuntimeException();
@@ -30,7 +30,7 @@ public class Cat extends StartFilter {
 			if (currentFile < myFileNames.length-1) {
 				currentFile++;
 				try {
-					myScanner = new Scanner(new File(myFileNames[currentFile]));
+					myScanner = new Scanner(new File((workingDirectory.resolve(myFileNames[currentFile])).toString()));
 				} catch (FileNotFoundException e) {
 					System.out.printf("Could not open file: %s", myFileNames[currentFile]);
 					throw new RuntimeException();
