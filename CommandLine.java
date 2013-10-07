@@ -62,8 +62,8 @@ class CommandLine {
 		}
 	}
 
-	private String parseLine () {
-		return myScanner.nextLine();
+	private String[] parseLine () {
+		return myScanner.nextLine().split(" *\\| *");
 	}
 
 	private Thread startThread(String[] nameAndArgs, LinkedBlockingQueue<String[]> input, 
@@ -120,20 +120,31 @@ class CommandLine {
 	// userCommands = ['cat foo.txt', 'lc > bar.txt']
 	// 
 	private String getFile (String[] userCommands) {
-		String[] commandAndFile = userCommands[userCommands.length-1].split(" *> *");
+		String[] commandAndFile = userCommands[userCommands.length-1].split(" *\\> *");
 		userCommands[userCommands.length-1] = commandAndFile[0];
-		return commandAndFile[1];
+		if (commandAndFile.length > 1) return commandAndFile[1] + ".txt";
+		return null;
 	}
 
 	public static void main (String[] args) {
-		String userCommands;
+		String commandString = "";
 		CommandLine myCmd = new CommandLine();
 		while(!myCmd.exitRepl) {
 			System.out.print("> ");
-			userCommands = myCmd.parseLine();
-			LinkedBlockingQueue<String[]> output = myCmd.startAllThreads(userCommands.split(" *\\| *"));
+			String[] userCommands = myCmd.parseLine();
+			String outputFile = myCmd.getFile(userCommands);
+			LinkedBlockingQueue<String[]> output = myCmd.startAllThreads(userCommands);
 			if (output != null) {
-				Thread myOutputHandler = new Thread(new OutputHandler(output));
+				Thread myOutputHandler = null;
+				if (outputFile != null) {
+					try {
+						myOutputHandler = new Thread(new OutputHandler(output, outputFile));
+					} catch (FileNotFoundException e) {
+						System.out.printf("Unable to create file: %s\n", outputFile);
+					}
+				} else {
+					myOutputHandler = new Thread(new OutputHandler(output));
+				}
 				myOutputHandler.start();
 				try {
 					myOutputHandler.join();
@@ -142,7 +153,7 @@ class CommandLine {
 					break; // Actually handle exception later.
 				}
 			}
-			myCmd.commandHistory.add(userCommands);
+			myCmd.commandHistory.add(commandString);
 			myCmd.commandList.clear();
 		}
 	}

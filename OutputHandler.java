@@ -9,7 +9,7 @@ public class OutputHandler extends EndFilter {
 
 	public OutputHandler(LinkedBlockingQueue<String[]> in, String filename) throws FileNotFoundException {
 		super(in);
-		myOutputStream = new PrintStream(new File(filename));
+		myOutputStream = new PrintStream(filename);
 	}
 
 	public OutputHandler(LinkedBlockingQueue<String[]> in) {
